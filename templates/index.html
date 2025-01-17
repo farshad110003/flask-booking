@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سیستم نوبت‌دهی</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            direction: rtl;
+            text-align: center;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .day {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+        .day h3 {
+            margin: 5px 0;
+            font-size: 18px;
+            color: #555;
+        }
+        .hour {
+            margin: 5px 0;
+        }
+        .hour form {
+            display: inline;
+        }
+        .booked {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: none;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .available button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 5px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .available button:hover {
+            background-color: #218838;
+        }
+        .disabled {
+            background-color: #ffc107;
+            color: #856404;
+            border: none;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        form {
+            margin: 5px 0;
+        }
+        .admin-login {
+            margin: 20px 0;
+        }
+        .logout-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <h1>سیستم نوبت‌دهی</h1>
+
+    <!-- فرم ورود مدیر -->
+    {% if not is_admin %}
+        <div class="admin-login">
+            <form method="post" action="/admin_login">
+                <input type="password" name="password" placeholder="رمز عبور مدیر" required>
+                <button type="submit">ورود مدیر</button>
+            </form>
+        </div>
+    {% else %}
+        <form method="post" action="/admin_logout">
+            <button class="logout-btn" type="submit">خروج از حساب مدیر</button>
+        </form>
+    {% endif %}
+
+    <div class="calendar">
+        {% for date, hours in slots.items() %}
+            <div class="day">
+                <h3>{{ date }}</h3>
+                {% for hour, info in hours.items() %}
+                    <div class="hour">
+                        <strong>{{ hour }}:00</strong>
+                        {% if (date, hour) in disabled_slots %}
+                            <span class="disabled">غیرفعال شده</span>
+                        {% elif info %}
+                            <span class="booked">رزرو شده</span>
+                        {% else %}
+                            <form action="/book" method="post" class="available">
+                                <input type="hidden" name="date" value="{{ date }}">
+                                <input type="hidden" name="hour" value="{{ hour }}">
+                                <input type="text" name="name" placeholder="نام" required>
+                                <input type="text" name="phone" placeholder="شماره تماس" required>
+                                <button type="submit">رزرو</button>
+                            </form>
+                        {% endif %}
+
+                        {% if is_admin %}
+                            <form method="post" action="/toggle" style="display: inline;">
+                                <input type="hidden" name="date" value="{{ date }}">
+                                <input type="hidden" name="hour" value="{{ hour }}">
+                                <button type="submit">غیرفعال‌سازی</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

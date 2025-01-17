@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking System</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background-color: #f4f4f4; }
+        button { padding: 5px 10px; }
+        .booked { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>Booking System</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Day</th>
+                <th>Hour</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for day, hours in slots.items() %}
+                {% for hour, info in hours.items() %}
+                    <tr>
+                        <td>{{ day }}</td>
+                        <td>{{ hour }}:00 - {{ hour + 1 }}:00</td>
+                        <td>
+                            {% if info %}
+                                <span class="booked">Booked by {{ info.name }}</span>
+                            {% else %}
+                                <form action="/book" method="post" style="display: inline;">
+                                    <input type="hidden" name="day" value="{{ day }}">
+                                    <input type="hidden" name="hour" value="{{ hour }}">
+                                    <input type="text" name="name" placeholder="Name" required>
+                                    <input type="text" name="phone" placeholder="Phone" required>
+                                    <button type="submit">Book</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
